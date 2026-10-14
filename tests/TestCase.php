@@ -1,0 +1,40 @@
+<?php
+
+namespace XLaravel\Sluggable\Tests;
+
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Orchestra\Testbench\TestCase as BaseTestCase;
+use XLaravel\Sluggable\SluggableServiceProvider;
+
+abstract class TestCase extends BaseTestCase
+{
+    protected function getPackageProviders($app): array
+    {
+        return [SluggableServiceProvider::class];
+    }
+
+    protected function defineEnvironment($app): void
+    {
+        $app['config']->set('database.default', 'testing');
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $migration = require __DIR__ . '/../database/migrations/create_slug_history_table.php';
+
+        if (is_object($migration) && method_exists($migration, 'up')) {
+            $migration->up();
+        }
+
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('title')->nullable();
+            $table->string('subtitle')->nullable();
+            $table->string('slug')->unique();
+            $table->softDeletes();
+        });
+    }
+}
