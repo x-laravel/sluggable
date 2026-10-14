@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.0] - 2026-10-14
 
 ### Added
 
@@ -18,3 +18,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `Events\SlugChanged`, dispatched after commit, and `slugChanging` / `slugChanged` model events.
 - `Rules\Slug` format rule, `Rules\UniqueSlug` rule that also sees reserved slugs, and the `slug`
   string alias, with Turkish and English messages.
+
+[1.0.0]: https://github.com/X-Laravel/sluggable/releases/tag/v1.0.0
