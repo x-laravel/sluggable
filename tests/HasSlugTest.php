@@ -26,6 +26,42 @@ class HasSlugTest extends TestCase
         $this->assertSame('rock-konseri', Post::create(['title' => 'Rock Konseri'])->slug);
     }
 
+    public function testFindsTheNextNumberWithAFixedNumberOfQueries(): void
+    {
+        foreach (range(1, 20) as $i) {
+            Post::create(['title' => 'Konser']);
+        }
+
+        $post = Post::create(['title' => 'Konser']);
+        $post->update(['slug' => 'yaz-konseri']);
+
+        $queries = 0;
+        DB::listen(function () use (&$queries) {
+            $queries++;
+        });
+
+        $this->assertSame('konser-22', Post::create(['title' => 'Konser'])->slug);
+        $this->assertLessThanOrEqual(6, $queries);
+    }
+
+    public function testNumbersCorrectlyWhenTheBaseIsCutToMakeRoom(): void
+    {
+        $post = new class extends Post {
+            protected $table = 'posts';
+
+            protected ?int $slugMaxLength = 10;
+        };
+
+        $first = new $post;
+        $first->fill(['title' => 'Konser Gecesi'])->save();
+        $second = new $post;
+        $second->fill(['title' => 'Konser Gecesi'])->save();
+        $third = new $post;
+        $third->fill(['title' => 'Konser Gecesi'])->save();
+
+        $this->assertSame(['konser-gec', 'konser-g-2', 'konser-g-3'], [$first->slug, $second->slug, $third->slug]);
+    }
+
     public function testJoinsSeveralSourceAttributes(): void
     {
         $post = new class extends Post {

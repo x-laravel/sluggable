@@ -8,14 +8,14 @@ class RacyPost extends Post
 
     protected $table = 'posts';
 
-    public function slugTaken(string $slug): bool
+    protected function slugsStartingWith(string $base): array
     {
         if (self::$misses > 0) {
             self::$misses--;
 
-            return false;
+            return [];
         }
 
-        return parent::slugTaken($slug);
+        return parent::slugsStartingWith($base);
     }
 }

@@ -16,7 +16,9 @@ abstract class TestCase extends BaseTestCase
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('database.default', 'testing');
+        $connection = getenv('DB_CONNECTION');
+
+        $app['config']->set('database.default', is_string($connection) && $connection !== '' ? $connection : 'testing');
     }
 
     protected function setUp(): void
@@ -25,10 +27,12 @@ abstract class TestCase extends BaseTestCase
 
         $migration = require __DIR__ . '/../database/migrations/create_slug_history_table.php';
 
-        if (is_object($migration) && method_exists($migration, 'up')) {
+        if (is_object($migration) && method_exists($migration, 'down') && method_exists($migration, 'up')) {
+            $migration->down();
             $migration->up();
         }
 
+        Schema::dropIfExists('posts');
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
             $table->string('title')->nullable();

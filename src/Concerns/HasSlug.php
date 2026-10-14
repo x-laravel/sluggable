@@ -165,17 +165,7 @@ trait HasSlug
 
     public function slugIsReserved(string $slug): bool
     {
-        $days = $this->slugReservedFor();
-
-        if (! $this->keepsSlugHistory() || $days === 0) {
-            return false;
-        }
-
-        return $this->slugHistory()
-            ->where('slug', $slug)
-            ->when($this->exists, fn (Builder $query) => $query->where('sluggable_id', '!=', $this->getKey()))
-            ->when($days !== null, fn (Builder $query) => $query->where('created_at', '>=', now()->subDays((int) $days)))
-            ->exists();
+        return $this->reservedSlugs()?->where('slug', $slug)->exists() ?? false;
     }
 
     /**
@@ -245,11 +235,55 @@ trait HasSlug
         return SlugHistory::query()->where('sluggable_type', $this->getMorphClass());
     }
 
+    /**
+     * @return Builder<SlugHistory>|null
+     */
+    protected function reservedSlugs(): ?Builder
+    {
+        $days = $this->slugReservedFor();
+
+        if (! $this->keepsSlugHistory() || $days === 0) {
+            return null;
+        }
+
+        return $this->slugHistory()
+            ->when($this->exists, fn (Builder $query) => $query->where('sluggable_id', '!=', $this->getKey()))
+            ->when($days !== null, fn (Builder $query) => $query->where('created_at', '>=', now()->subDays((int) $days)));
+    }
+
     protected function generateSlug(): string
     {
         $length = $this->slugMaxLength();
+        $base = SlugGenerator::slugify($this->slugSource(), $length);
+        $prefix = $base . SlugGenerator::separator();
+        $taken = array_flip($this->slugsStartingWith($base));
 
-        return SlugGenerator::unique(SlugGenerator::slugify($this->slugSource(), $length), $this->slugTaken(...), $length);
+        return SlugGenerator::unique(
+            $base,
+            fn (string $slug) => $slug === $base || str_starts_with($slug, $prefix) ? isset($taken[$slug]) : $this->slugTaken($slug),
+            $length,
+        );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function slugsStartingWith(string $base): array
+    {
+        $pattern = $base . SlugGenerator::separator() . '%';
+        $matching = fn (Builder $query, string $column) => $query->where(
+            fn (Builder $query) => $query->where($column, $base)->orWhere($column, 'like', $pattern),
+        );
+
+        $live = $matching($this->slugUniqueQuery(), $this->slugColumn())
+            ->when($this->exists, fn (Builder $query) => $query->whereKeyNot($this->getKey()))
+            ->pluck($this->slugColumn())
+            ->all();
+
+        $history = $this->reservedSlugs();
+        $reserved = $history === null ? [] : $matching($history, 'slug')->pluck('slug')->all();
+
+        return array_values(array_filter([...$live, ...$reserved], is_string(...)));
     }
 
     protected function prepareSlug(): void
