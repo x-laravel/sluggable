@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   one or more attributes, numbered duplicates (`slug-2`), uniqueness checked across global scopes,
   optional regeneration when the source changes, all tunable per model.
 - Slug history with `whereSlug()`, `findBySlug()` and route model binding that resolve old slugs,
-  a configurable reservation period for old slugs and pruning through `model:prune`.
+  a configurable reservation period for old slugs and pruning through `model:prune`, scheduled by
+  the package.
 - Retry with savepoints when a generated slug loses a race on the unique index.
 - `Events\SlugChanged`, dispatched after commit, and `slugChanging` / `slugChanged` model events.
 - `Rules\Slug` format rule, `Rules\UniqueSlug` rule that also sees reserved slugs, and the `slug`

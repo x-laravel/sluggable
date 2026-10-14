@@ -88,6 +88,7 @@ database's unique index.
 | `history.table` | `'slug_history'` | Name of the history table |
 | `history.reserve_for` | `90` | Days an old slug stays reserved for its record |
 | `history.prune_after` | `365` | Days after which history rows are pruned |
+| `history.prune_schedule` | `'daily'` | Frequency or cron expression of the pruning job; `null` to schedule it yourself |
 
 Put the history table on the same connection as your models, so a slug change and its history row
 are written in one transaction.
@@ -116,12 +117,10 @@ belongs to the new record.
 
 ### Pruning
 
-`SlugHistory` is prunable. Laravel only discovers prunable models in `app/Models`, so name it when
-you schedule the command:
-
-```php
-Schedule::command('model:prune', ['--model' => [\XLaravel\Sluggable\Models\SlugHistory::class]])->daily();
-```
+Rows older than `prune_after` days are deleted by Laravel's `model:prune` command. The package
+schedules it for the history table itself, daily by default; set `history.prune_schedule` to another
+frequency such as `'hourly'`, to a cron expression, or to `null` to schedule it yourself. Nothing is
+scheduled when the history or pruning is turned off.
 
 A pruned row no longer resolves. Keep `prune_after` longer than `reserve_for`; a row that is pruned
 earlier also ends its reservation.

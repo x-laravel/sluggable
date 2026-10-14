@@ -55,8 +55,12 @@ return [
     |              record can take it in that time. Null reserves it for as
     |              long as the row exists, 0 does not reserve it at all. A
     |              model can override it with a $slugReservedFor property.
-    | prune_after  Days after which history rows are deleted by Laravel's
-    |              model:prune command. Null keeps them forever.
+    | prune_after     Days after which history rows are deleted. Null keeps
+    |                 them forever.
+    | prune_schedule  How often the package schedules model:prune for the
+    |                 history table: a schedule frequency such as "daily" or
+    |                 "hourly", or a cron expression. Null leaves scheduling
+    |                 to you.
     |
     */
 
@@ -66,6 +70,7 @@ return [
         'table' => 'slug_history',
         'reserve_for' => 90,
         'prune_after' => 365,
+        'prune_schedule' => 'daily',
     ],
 
 ];

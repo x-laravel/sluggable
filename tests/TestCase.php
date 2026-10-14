@@ -25,7 +25,7 @@ abstract class TestCase extends BaseTestCase
     {
         parent::setUp();
 
-        $migration = require __DIR__ . '/../database/migrations/create_slug_history_table.php';
+        $migration = require __DIR__ . '/../database/migrations/2026_10_14_000000_create_slug_history_table.php';
 
         if (is_object($migration) && method_exists($migration, 'down') && method_exists($migration, 'up')) {
             $migration->down();
