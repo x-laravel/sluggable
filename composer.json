@@ -1,0 +1,54 @@
+{
+    "name": "x-laravel/sluggable",
+    "description": "Slugs for Eloquent models with language-aware generation, race-safe uniqueness and a history that keeps old links working.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "eloquent", "slug", "sluggable", "history", "url"],
+    "authors": [
+        {
+            "name": "Mehmet ÖĞMEN",
+            "email": "www@mehmetogmen.com.tr",
+            "homepage": "https://www.mehmetogmen.com.tr",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "illuminate/console": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/support": "^13.0",
+        "illuminate/validation": "^13.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^11.0",
+        "phpunit/phpunit": "^11.5 || ^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "XLaravel\\Sluggable\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "XLaravel\\Sluggable\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "XLaravel\\Sluggable\\SluggableServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "analyse": "phpstan analyse",
+        "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
